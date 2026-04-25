@@ -1,43 +1,50 @@
 <template>
-  <q-page class="row items-center justify-evenly">
-    <example-component
-      title="Example component"
-      active
-      :todos="todos"
-      :meta="meta"
-    ></example-component>
-  </q-page>
+	<q-page class="full-width q-pa-md">
+		<q-toolbar class="q-px-none">
+			<q-file
+				v-model="selectedExcelFile"
+				label="从Excel导入"
+				accept=".xlsx,.xls"
+				outlined
+				dense
+				@update:model-value="loadExcelFile2Json"
+			>
+				<template v-slot:prepend>
+					<q-icon name="mdi-microsoft-excel" color="green" />
+				</template>
+			</q-file>
+
+			<!-- <q-btn label="已保存" icon="mdi-content-save-check" />
+      <q-btn label="未保存" color="red" icon="mdi-content-save-alert" /> -->
+		</q-toolbar>
+
+		<!-- 资产列表 -->
+		<asset-list />
+	</q-page>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import type { Todo, Meta } from 'components/models';
-import ExampleComponent from 'components/ExampleComponent.vue';
+import AssetList from './AssetList.vue'
+import { onMounted, ref } from 'vue'
+import { excelToJson } from './excel2json'
 
-const todos = ref<Todo[]>([
-  {
-    id: 1,
-    content: 'ct1'
-  },
-  {
-    id: 2,
-    content: 'ct2'
-  },
-  {
-    id: 3,
-    content: 'ct3'
-  },
-  {
-    id: 4,
-    content: 'ct4'
-  },
-  {
-    id: 5,
-    content: 'ct5'
-  }
-]);
+import { useDataStore } from 'src/stores/datastore'
+const store = useDataStore()
 
-const meta = ref<Meta>({
-  totalCount: 1200
-});
+// Quasar q-file 绑定的文件对象
+const selectedExcelFile = ref<File | null>(null)
+
+async function loadExcelFile2Json() {
+	const file = selectedExcelFile.value
+	if (!file) return
+
+	try {
+		const data = await excelToJson(file)
+		store.loadAssets(data)
+	} catch (err) {
+		console.error('解析失败', err)
+	}
+}
+
+onMounted(() => {})
 </script>
