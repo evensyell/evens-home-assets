@@ -28,7 +28,7 @@ import AssetList from './AssetList.vue'
 import { onMounted, ref } from 'vue'
 import { excelToJson } from './excel2json'
 
-import { useDataStore } from 'src/stores/datastore'
+import { useDataStore } from 'src/stores/assetstore'
 const store = useDataStore()
 
 // Quasar q-file 绑定的文件对象

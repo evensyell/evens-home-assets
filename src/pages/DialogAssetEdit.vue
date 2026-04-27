@@ -1,25 +1,29 @@
 <template>
-	<q-dialog v-model="showDialog" backdrop-filter="blur(4px)" @hide="emit('hide')" persistent>
+	<dialog-layout-full
+		:is_show_dialog="is_show_dialog"
+		backdrop-filter="blur(4px)"
+		@hide="emit('hide')"
+		persistent
+	>
 		<q-card
 			class="q-pa-md q-gutter-y-md bg-blue-grey-1"
 			style="max-height: 90%; width: 500px; max-width: 90%"
 		>
 			<!-- 控件 -->
-			<div>
+			<div class="q-gutter-md justify-between row">
 				<q-btn
+					v-if="props.asset"
 					unelevated
-					class="bg-white radius-10 bg-red q-mt-none"
-					icon="mdi-close"
-					@click="emit('hide')"
-				>
-					<span class="q-px-sm">关闭</span>
-					<q-badge class="bg-grey-4 text-bold text-grey-8">Esc</q-badge>
-				</q-btn>
+					class="text-white radius-10 bg-primary q-mt-none"
+					label="提交"
+					@click="store.patchAsset(props.asset.id, edit)"
+				/>
 				<q-btn
+					v-else
 					unelevated
-					class="bg-white radius-10 bg-red q-mt-none"
-					icon="mdi-close"
-					@click="store.updateAsset(props.asset.id, edit)"
+					class="text-white radius-10 bg-positive q-mt-none"
+					label="添加"
+					@click="store.addAsset(edit)"
 				/>
 			</div>
 
@@ -102,14 +106,15 @@
 				</q-card>
 			</q-form>
 		</q-card>
-	</q-dialog>
+	</dialog-layout-full>
 </template>
 
 <script setup lang="ts">
+import DialogLayoutFull from 'src/components/DialogLayoutFull.vue'
 import { onMounted, computed, ref, watch, reactive } from 'vue'
-import type { Asset } from 'src/stores/datastore'
-import { useDataStore } from 'src/stores/datastore'
+import { useDataStore } from 'src/stores/assetstore'
 const store = useDataStore()
+import type { Asset } from 'src/db/db'
 
 // const props = defineProps({
 // 	asset: {
@@ -121,11 +126,6 @@ const store = useDataStore()
 // 		default: false,
 // 	},
 // })
-
-const props = defineProps<{
-	asset: Asset | null
-	is_show_dialog: boolean
-}>()
 
 const edit: Asset = reactive({
 	id: null,
@@ -147,9 +147,14 @@ const edit: Asset = reactive({
 	daily_consumption: null,
 })
 
+const props = defineProps<{
+	asset: Asset | null
+	is_show_dialog: boolean
+}>()
+
 const emit = defineEmits(['succss', 'hide'])
 
-const showDialog = computed({
+const is_show_dialog = computed({
 	get() {
 		return props.is_show_dialog
 	},
@@ -167,14 +172,20 @@ watch(
 
 // 初始化
 const init = (obj: Asset | null) => {
+	console.log('init')
+
 	if (obj) {
+		// 修改资产详情初始化
 		;(Object.keys(edit) as Array<keyof typeof edit>).forEach((key) => {
 			edit[key] = (obj[key] as null) ?? null
 		})
 	} else {
-		;(Object.keys(edit) as Array<keyof typeof edit>).forEach((key) => {
-			edit[key] = null
-		})
+		// 新增资产初始化
+		console.log('null')
+
+		// ;(Object.keys(edit) as Array<keyof typeof edit>).forEach((key) => {
+		// 	edit[key] = null
+		// })
 		edit.quantity = 1
 	}
 }

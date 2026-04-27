@@ -90,6 +90,16 @@
 			<q-tab name="price" label="购入价格" />
 		</q-tabs>
 
+		<q-toolbar>
+			<q-btn
+				icon="mdi-plus"
+				round
+				unelevated
+				class="bg-green-2 text-white"
+				@click="is_show_dialog = !is_show_dialog"
+			/>
+		</q-toolbar>
+
 		<!-- 资产展示区 -->
 		<div class="q-col-gutter-md q-mt-none row" flat bordered>
 			<q-intersection
@@ -102,13 +112,23 @@
 			</q-intersection>
 		</div>
 	</div>
+
+	<dialog-asset-edit
+		:is_show_dialog="is_show_dialog"
+		@hide="is_show_dialog = false"
+		:asset="null"
+	/>
 </template>
 
 <script setup lang="ts">
 import AssetCard from './AssetCard.vue'
-import { computed, reactive } from 'vue'
-import { useDataStore } from 'src/stores/datastore'
+import DialogAssetEdit from './DialogAssetEdit.vue'
+
+import { computed, reactive, ref } from 'vue'
+import { useDataStore } from 'src/stores/assetstore'
 const store = useDataStore()
+
+const is_show_dialog = ref(false)
 
 const filters = reactive({
 	tag_select: '',
@@ -117,7 +137,7 @@ const filters = reactive({
 })
 
 const filter_data = computed(() => {
-	return store.assets
+	return store.asset_list
 		.filter((i) => {
 			return (
 				(i.tag?.includes(filters.tag_select) || !filters.tag_select) &&

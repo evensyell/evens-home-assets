@@ -50,7 +50,7 @@
 <script setup lang="ts">
 import DialogAssetEdit from './DialogAssetEdit.vue'
 import { onMounted, computed, ref } from 'vue'
-import type { Asset } from 'src/stores/datastore'
+import type { Asset } from 'src/db/db'
 
 import { date as QDate } from 'quasar'
 
